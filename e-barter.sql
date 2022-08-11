@@ -10,4 +10,14 @@ create table user (
     verified boolean
 );
 
-select * from user;
+create table item (
+	id bigint not null primary key auto_increment,
+    category varchar(100) not null,
+    title varchar(300) not null,
+    owner_id bigint not null,
+    details json,
+    constraint ownerId_foreign_key foreign key(owner_id) references user(id)
+);
+
+drop table item;
+select * from item;
