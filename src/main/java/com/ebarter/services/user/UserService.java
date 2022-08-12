@@ -2,6 +2,7 @@ package com.ebarter.services.user;
 
 import com.ebarter.services.exceptions.ExceptionMessages;
 import com.ebarter.services.exceptions.ServiceException;
+import com.ebarter.services.notifications.EventPublisher;
 import com.ebarter.services.user.models.User;
 import com.ebarter.services.user.models.UserDTO;
 import com.ebarter.services.user.models.UserRole;
@@ -22,6 +23,9 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EventPublisher eventPublisher;
+
     public boolean registerUser(UserDTO userDTO) throws ServiceException {
 
         if(userRepository.existsByEmail(userDTO.getEmail())) {
@@ -31,8 +35,9 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if(user.getRole() == null)
             user.setRole(UserRole.REGULAR);
-        userRepository.save(user);
+        user = userRepository.save(user);
 
+        eventPublisher.publishEvent(new UserRegistrationSuccessEvent(user.getId(), user.getEmail()));
         return true;
     }
 }

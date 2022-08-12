@@ -19,5 +19,12 @@ create table item (
     constraint ownerId_foreign_key foreign key(owner_id) references user(id)
 );
 
+create table verification_otp (
+	id bigint not null primary key auto_increment,
+    user_id bigint not null,
+    expiry_date date not null,
+    token varchar(100),
+    constraint user_id_foreign_key foreign key(user_id) references user(id)
+);
 drop table item;
-select * from item;
+delete from user;
