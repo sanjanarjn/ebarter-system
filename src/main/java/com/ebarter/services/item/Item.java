@@ -8,6 +8,7 @@ import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Data
@@ -28,4 +29,7 @@ public class Item {
     @Type(type = "json")
     @Column(columnDefinition = "json")
     private JsonNode details;
+
+    private Date createdTime;
+    private Date modifiedTime;
 }

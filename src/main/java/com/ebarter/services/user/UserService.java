@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 public class UserService {
 
@@ -33,6 +35,9 @@ public class UserService {
         }
         User user = modelMapper.map(userDTO, User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setCreatedTime(new Date());
+        user.setModifiedTime(new Date());
+
         if(user.getRole() == null)
             user.setRole(UserRole.REGULAR);
         user = userRepository.save(user);
