@@ -1,4 +1,4 @@
-package com.ebarter.services.user.models;
+package com.ebarter.services.user;
 
 import lombok.Data;
 

@@ -16,12 +16,12 @@ public class ItemController {
     private ItemService itemService;
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Boolean> uploadItemForLending(@RequestBody ItemDto item) {
-        return new ResponseEntity<>(itemService.onboardItem(item), HttpStatus.OK);
+    public ResponseEntity<ItemDto> uploadItemForLending(@RequestBody ItemDto item) {
+        return new ResponseEntity<>(itemService.onboardItem(item), HttpStatus.CREATED);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, headers = "bulk=true")
-    public ResponseEntity<Boolean> uploadItemsForLending(@RequestBody List<ItemDto> items) {
-       return new ResponseEntity<>(itemService.onboardItems(items), HttpStatus.OK);
+    public ResponseEntity<List<ItemDto>> uploadItemsForLending(@RequestBody List<ItemDto> items) {
+       return new ResponseEntity<>(itemService.onboardItems(items), HttpStatus.CREATED);
     }
 }

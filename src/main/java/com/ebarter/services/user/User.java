@@ -1,5 +1,6 @@
-package com.ebarter.services.user.models;
+package com.ebarter.services.user;
 
+import com.ebarter.services.BaseEntity;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -7,11 +8,7 @@ import java.util.Date;
 
 @Data
 @Entity
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+public class User extends BaseEntity {
 
     private String email;
     private String password;

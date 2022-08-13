@@ -1,4 +1,4 @@
-package com.ebarter.services.user.models;
+package com.ebarter.services.user;
 
 public enum UserRole {
     GUEST, REGULAR, ADMIN

@@ -21,24 +21,39 @@ public class ItemService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public boolean onboardItems(List<ItemDto> itemDtos) {
+    public List<ItemDto> onboardItems(List<ItemDto> itemDtos) {
         List<Item> items = new ArrayList<>();
         for(ItemDto dto : itemDtos) {
             items.add(convertDtoToEntity(dto));
         }
+        items = saveItems(items);
+
+        List<ItemDto> savedDtos = new ArrayList<>();
+        for (Item item : items) {
+            savedDtos.add(modelMapper.map(item, ItemDto.class));
+        }
+        return savedDtos;
+    }
+
+    public List<Item> saveItems(List<Item> items) {
+        return itemRepository.saveAll(items);
+    }
+
+    public void updateItemStatus(List<Long> itemIds, ItemAvailabilityStatus newStatus) {
+        List<Item> items = itemRepository.findAllById(itemIds);
+        for(Item item : items) {
+            item.setAvailabilityStatus(newStatus);
+        }
         itemRepository.saveAll(items);
-        return true;
     }
 
     private Item convertDtoToEntity(ItemDto dto) {
         Item item = modelMapper.map(dto, Item.class);
-        item.setCreatedTime(new Date());
-        item.setModifiedTime(new Date());
         return item;
     }
 
-    public boolean onboardItem(ItemDto item) {
-        itemRepository.save(convertDtoToEntity(item));
-        return true;
+    public ItemDto onboardItem(ItemDto itemDto) {
+        Item item = itemRepository.save(convertDtoToEntity(itemDto));
+        return modelMapper.map(item, ItemDto.class);
     }
 }

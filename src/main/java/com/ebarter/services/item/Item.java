@@ -1,5 +1,6 @@
 package com.ebarter.services.item;
 
+import com.ebarter.services.BaseEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.Data;
@@ -15,21 +16,24 @@ import java.util.Date;
 @TypeDefs({
         @TypeDef(name = "json", typeClass = JsonType.class)
 })
-public class Item {
+public class Item extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="category_id", nullable=false)
+    private ItemCategory category;
 
-    private String category;
     private String title;
-
     private long ownerId;
 
     @Type(type = "json")
     @Column(columnDefinition = "json")
     private JsonNode details;
 
-    private Date createdTime;
-    private Date modifiedTime;
+    private ItemAvailabilityStatus availabilityStatus;
+
+    @PrePersist
+    public void modifyEntityBeforeCreation() {
+        super.setCreatedTime();
+        this.availabilityStatus = ItemAvailabilityStatus.AVAILABLE;
+    }
 }

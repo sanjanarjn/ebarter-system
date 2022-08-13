@@ -1,27 +1,23 @@
 package com.ebarter.services.exchange;
 
+import com.ebarter.services.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Data
 @Entity
-public class ExchangeRequest {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Exchange extends BaseEntity {
 
     private long initiatedUserId;
 
-    @OneToMany(mappedBy = "request")
+    @OneToMany(mappedBy = "exchange")
     private List<ExchangeTransaction> transactions;
-
-    private Date createdTime;
-    private Date modifiedTime;
 
     public void addTransaction(ExchangeTransaction transaction) {
         if(this.transactions == null)

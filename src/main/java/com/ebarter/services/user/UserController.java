@@ -2,7 +2,6 @@ package com.ebarter.services.user;
 
 import com.ebarter.services.exceptions.ServiceException;
 import com.ebarter.services.notifications.EventPublisher;
-import com.ebarter.services.user.models.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

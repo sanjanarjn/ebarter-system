@@ -20,4 +20,8 @@ public class ExchangeTransactionService {
         transactionRepository.saveAll(transactions);
         return true;
     }
+
+    public ExchangeTransaction getTransaction(long exchangeId, long borrowerId, long lenderId) {
+        return transactionRepository.findByExchangeIdAndBorrowerAndLender(exchangeId, borrowerId, lenderId);
+    }
 }

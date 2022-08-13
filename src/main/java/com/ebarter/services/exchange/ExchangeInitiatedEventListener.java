@@ -5,13 +5,13 @@ import com.ebarter.services.notifications.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ExchangeRequestCreatedEventListener implements EventListener {
+public class ExchangeInitiatedEventListener implements EventListener {
 
 
-    @org.springframework.context.event.EventListener(ExchangeRequestCreatedEvent.class)
+    @org.springframework.context.event.EventListener(ExchangeInitiatedEvent.class)
     @Override
     public void handleEvent(Event event) {
-        ExchangeRequestCreatedEvent newRequestEvent = (ExchangeRequestCreatedEvent) event;
+        ExchangeInitiatedEvent newRequestEvent = (ExchangeInitiatedEvent) event;
         sendNotifications();
     }
 

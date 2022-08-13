@@ -1,5 +1,6 @@
 package com.ebarter.services.exchange;
 
+import com.ebarter.services.BaseEntity;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -7,21 +8,14 @@ import java.util.Date;
 
 @Entity
 @Data
-public class ExchangeTransaction {
+public class ExchangeTransaction extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @ManyToOne
-    @JoinColumn(name="request_id", nullable=false)
-    private ExchangeRequest request;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="exchange_id", nullable=false)
+    private Exchange exchange;
     private long lender;
     private long borrower;
     private long itemId;
 
     private ExchangeTransactionStatus status;
-
-    private Date createdTime;
-    private Date modifiedTime;
 }
