@@ -22,6 +22,16 @@ public class ItemController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, headers = "bulk=true")
     public ResponseEntity<List<ItemDto>> uploadItemsForLending(@RequestBody List<ItemDto> items) {
-       return new ResponseEntity<>(itemService.onboardItems(items), HttpStatus.CREATED);
+        return new ResponseEntity<>(itemService.onboardItems(items), HttpStatus.CREATED);
+    }
+
+    @GetMapping(path = "/all", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ItemDto>> getAllAvailableItems() {
+        return new ResponseEntity<>(itemService.getItems(), HttpStatus.OK);
+    }
+
+    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, params = {"ownerId"})
+    public ResponseEntity<List<ItemDto>> getAllAvailableItems(@RequestParam("ownerId") long ownerId) {
+        return new ResponseEntity<>(itemService.getItems(), HttpStatus.OK);
     }
 }

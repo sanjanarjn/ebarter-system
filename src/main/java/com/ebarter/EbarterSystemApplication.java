@@ -20,11 +20,6 @@ public class EbarterSystemApplication {
 	}
 
 	@Bean
-	public BCryptPasswordEncoder getPasswordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-
-	@Bean
 	public ObjectMapper getObjectMapper() {
 		return new ObjectMapper();
 	}

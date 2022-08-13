@@ -5,7 +5,6 @@ import com.ebarter.services.exceptions.ServiceException;
 import com.ebarter.services.item.Item;
 import com.ebarter.services.item.ItemAvailabilityStatus;
 import com.ebarter.services.item.ItemService;
-import com.ebarter.services.user.Principal;
 import com.ebarter.services.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,9 +27,8 @@ public class ExchangeService {
     private ItemService itemService;
 
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    public void initiateExchange(Principal userPrincipal, BorrowalRequestDto borrowalRequestDto) {
+    public void initiateExchange(User user, BorrowalRequestDto borrowalRequestDto) {
 
-        User user = userPrincipal.getUser();
         Exchange exchange = createExchangeRequest(user, borrowalRequestDto);
         exchange = exchangeRepository.save(exchange);
 
@@ -60,7 +58,7 @@ public class ExchangeService {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void approveExchange(long exchangeId, Optional<BorrowalRequestDto> borrowalRequestDto, Principal principal) throws ServiceException {
+    public void approveExchange(User user, long exchangeId, Optional<BorrowalRequestDto> borrowalRequestDto) throws ServiceException {
         Optional<Exchange> exchangeOptional = exchangeRepository.findById(exchangeId);
         if(exchangeOptional.isPresent()) {
             Exchange exchange = exchangeOptional.get();

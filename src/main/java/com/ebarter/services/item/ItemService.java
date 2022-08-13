@@ -3,6 +3,9 @@ package com.ebarter.services.item;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -55,5 +58,14 @@ public class ItemService {
     public ItemDto onboardItem(ItemDto itemDto) {
         Item item = itemRepository.save(convertDtoToEntity(itemDto));
         return modelMapper.map(item, ItemDto.class);
+    }
+
+    public List<ItemDto> getItems() {
+        Page<Item> itemPage = itemRepository.findByAvailabilityStatus(ItemAvailabilityStatus.AVAILABLE, PageRequest.of(0, 100));
+        List<ItemDto> itemDtos = new ArrayList<>();
+        for(Item item : itemPage.getContent()) {
+            itemDtos.add(modelMapper.map(item, ItemDto.class));
+        }
+        return itemDtos;
     }
 }

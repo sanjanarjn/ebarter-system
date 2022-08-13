@@ -6,4 +6,5 @@ public class ExceptionMessages {
     public static final String ENTITY_ID_NOT_FOUND = "The requested entity with id - {0} could not be found.";
 
     public static final String CATEGORY_WITH_SAME_NAME_EXISTS = "Item category with same name already exists";
+    public static final String INCORRECT_USERNAME_OR_PASSWORD = "Incorrect username or password";
 }
