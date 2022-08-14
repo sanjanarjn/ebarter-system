@@ -3,6 +3,10 @@ package com.ebarter.services.user;
 import com.ebarter.services.exceptions.ExceptionMessages;
 import com.ebarter.services.exceptions.ServiceException;
 import com.ebarter.services.notifications.EventPublisher;
+import com.ebarter.services.profile.UserProfile;
+import com.ebarter.services.profile.UserProfileDto;
+import com.ebarter.services.profile.UserProfileRepository;
+import com.ebarter.services.profile.UserProfileService;
 import com.ebarter.services.user.iam.AuthResponse;
 import com.ebarter.services.user.iam.JwtTokenService;
 import org.modelmapper.ModelMapper;
@@ -15,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -39,6 +44,10 @@ public class UserService {
     @Autowired
     private EventPublisher eventPublisher;
 
+    @Autowired
+    private UserProfileRepository profileRepository;
+
+    @Transactional
     public boolean registerUser(UserDTO userDTO) throws ServiceException {
 
         if(userRepository.existsByEmail(userDTO.getEmail())) {
@@ -53,12 +62,20 @@ public class UserService {
             user.setRole(UserRole.REGULAR);
         user = userRepository.save(user);
 
+        UserProfile profile = new UserProfile();
+        profile.setId(user.getId());
+        profileRepository.save(profile);
+
         eventPublisher.publishEvent(new UserRegistrationSuccessEvent(user.getId(), user.getEmail()));
         return true;
     }
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public User getUserById(long id) {
+        return userRepository.findById(id).get();
     }
 
     public AuthResponse authenticateUsr(UserDTO userDTO) throws ServiceException {

@@ -53,7 +53,7 @@ public class SecurityConfiguration {
         http.authenticationProvider(getAuthenticationProvider());
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/users/login").permitAll()
+                .antMatchers("/users/login", "/users/register").permitAll()
                 .antMatchers(HttpMethod.GET, "/items/all").anonymous()
                 .anyRequest().authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

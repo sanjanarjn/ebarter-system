@@ -77,5 +77,14 @@ alter table exchange_transaction
 add constraint item_id_foreign_key 
 foreign key(item_id) references item(id);
 
+create table user_profile (
+	id bigint not null primary key auto_increment,
+    points int,
+    rating float,
+    created_time datetime not null,
+    modified_time datetime not null
+);
+
+alter table item add column points int default 1;
 use ebarter;
 

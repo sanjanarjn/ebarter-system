@@ -5,7 +5,9 @@ import com.ebarter.services.exceptions.ServiceException;
 import com.ebarter.services.item.Item;
 import com.ebarter.services.item.ItemAvailabilityStatus;
 import com.ebarter.services.item.ItemService;
+import com.ebarter.services.profile.UserProfileService;
 import com.ebarter.services.user.User;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -26,44 +28,49 @@ public class ExchangeService {
     @Autowired
     private ItemService itemService;
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    public void initiateExchange(User user, BorrowalRequestDto borrowalRequestDto) {
+    @Autowired
+    private UserProfileService profileService;
 
-        Exchange exchange = createExchangeRequest(user, borrowalRequestDto);
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    public ExchangeDto initiateExchange(User user, BorrowalRequestDto borrowalRequestDto) {
+
+        Exchange exchange = new Exchange();
+        exchange.setStatus(ExchangeStatus.OPEN);
+        exchange.setInitiatedUserId(user.getId());
+        exchange.setFellowUserId(borrowalRequestDto.getRequestedItem().getOwnerId());
         exchange = exchangeRepository.save(exchange);
 
-        ExchangeTransaction transaction = createExchangeTransaction(borrowalRequestDto);
+        ExchangeTransaction transaction = createExchangeTransaction(user, borrowalRequestDto);
         transaction.setExchange(exchange);
 
         transactionService.saveTransaction(transaction);
+        return modelMapper.map(exchange, ExchangeDto.class);
     }
 
-    private Exchange createExchangeRequest(User user, BorrowalRequestDto borrowalRequestDto) {
 
-        Exchange exchange = new Exchange();
-        exchange.setInitiatedUserId(borrowalRequestDto.getInitiatedUserId());
-        return exchange;
-    }
-
-    private ExchangeTransaction createExchangeTransaction(BorrowalRequestDto borrowalRequestDto) {
+    private ExchangeTransaction createExchangeTransaction(User user, BorrowalRequestDto borrowalRequestDto) {
         ExchangeTransaction transaction = new ExchangeTransaction();
-        transaction.setBorrower(borrowalRequestDto.getInitiatedUserId());
+        transaction.setBorrower(user.getId());
+
         Item requestedItem = borrowalRequestDto.getRequestedItem();
         transaction.setLender(requestedItem.getOwnerId());
         transaction.setItemId(requestedItem.getId());
         transaction.setStatus(ExchangeTransactionStatus.REQUESTED);
-        transaction.setCreatedTime(new Date());
-        transaction.setModifiedTime(new Date());
+
         return transaction;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void approveExchange(User user, long exchangeId, Optional<BorrowalRequestDto> borrowalRequestDto) throws ServiceException {
+    public ExchangeDto approveExchange(User user, long exchangeId, Optional<BorrowalRequestDto> borrowalRequestDto) throws ServiceException {
+
         Optional<Exchange> exchangeOptional = exchangeRepository.findById(exchangeId);
         if(exchangeOptional.isPresent()) {
             Exchange exchange = exchangeOptional.get();
 
-            long approverId = 1;
+            long approverId = user.getId();
             ExchangeTransaction forwardTransaction = transactionService.getTransaction(exchangeId, exchange.getInitiatedUserId(), approverId);
             forwardTransaction.setStatus(ExchangeTransactionStatus.APPROVED);
             transactionService.saveTransaction(forwardTransaction);
@@ -72,15 +79,68 @@ public class ExchangeService {
             itemIds.add(forwardTransaction.getItemId());
 
             if(borrowalRequestDto.isPresent()) {
-                ExchangeTransaction reverseTransaction = createExchangeTransaction(borrowalRequestDto.get());
+                ExchangeTransaction reverseTransaction = createExchangeTransaction(user, borrowalRequestDto.get());
                 reverseTransaction.setExchange(exchange);
                 reverseTransaction.setStatus(ExchangeTransactionStatus.APPROVED);
                 transactionService.saveTransaction(reverseTransaction);
 
                 itemIds.add(reverseTransaction.getItemId());
             }
+            exchange.setStatus(ExchangeStatus.APPROVED);
+            exchange = exchangeRepository.save(exchange);
             itemService.updateItemStatus(itemIds, ItemAvailabilityStatus.NOT_AVAILABLE);
+            return modelMapper.map(exchange, ExchangeDto.class);
         }
         else throw new ServiceException(MessageFormat.format(ExceptionMessages.ENTITY_ID_NOT_FOUND, exchangeId));
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void completeExchange(User user, long exchangeId) throws ServiceException {
+
+        Exchange exchange = getExchange(exchangeId);
+        exchange.setStatus(ExchangeStatus.SETTLED);
+
+        long initiatedUserId = exchange.getInitiatedUserId();
+        long fellowUserId = exchange.getFellowUserId();
+        int initiatedUserPoints = 0;
+        int fellowUserPoints = 0;
+
+        List<Long> itemIds = new ArrayList<>();
+        for(ExchangeTransaction transaction : exchange.getTransactions()) {
+            transactionService.updateTransactionStatus(transaction.getId(), ExchangeTransactionStatus.COMPLETE);
+            initiatedUserPoints += transaction.getLender() == initiatedUserId ? 1 : 0;
+            fellowUserPoints += transaction.getLender() == fellowUserId ? 1 : 0;
+            itemIds.add(transaction.getItemId());
+        }
+        creditRewardPoints(initiatedUserId, fellowUserId, initiatedUserPoints, fellowUserPoints);
+        itemService.updateItemStatus(itemIds, ItemAvailabilityStatus.AVAILABLE);
+    }
+
+    private void creditRewardPoints(long initiatedUserId, long fellowUserId, int initiatedUserPoints, int fellowUserPoints) {
+        if(initiatedUserPoints == fellowUserPoints) {
+            profileService.incrementUserRewardPoints(initiatedUserId, initiatedUserPoints);
+            profileService.incrementUserRewardPoints(fellowUserId, fellowUserPoints);
+        }
+        else {
+            long minUserId = initiatedUserPoints < fellowUserPoints ? initiatedUserId : fellowUserId;
+            long maxUserId = initiatedUserPoints > fellowUserPoints ? initiatedUserId : fellowUserId;
+            int minPoints = Math.min(initiatedUserPoints, fellowUserPoints);
+            int difference = Math.abs(initiatedUserPoints - fellowUserPoints);
+            profileService.incrementUserRewardPoints(minUserId, minPoints - difference);
+            profileService.incrementUserRewardPoints(maxUserId, minPoints + difference);
+        }
+    }
+
+    public Exchange getExchange(long id) throws ServiceException {
+        Optional<Exchange> exchangeOptional = exchangeRepository.findById(id);
+        if(exchangeOptional.isPresent()) {
+            Exchange exchange = exchangeOptional.get();
+            return exchange;
+        }
+        throw new ServiceException(MessageFormat.format(ExceptionMessages.ENTITY_ID_NOT_FOUND, id));
+    }
+
+    public ExchangeDto getExchangeDto(long id) throws ServiceException {
+        return modelMapper.map(getExchange(id), ExchangeDto.class);
     }
 }

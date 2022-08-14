@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +16,12 @@ import java.util.List;
 public class Exchange extends BaseEntity {
 
     private long initiatedUserId;
+    private long fellowUserId;
 
-    @OneToMany(mappedBy = "exchange")
+    @OneToMany(mappedBy = "exchange", fetch = FetchType.EAGER)
     private List<ExchangeTransaction> transactions;
+
+    private ExchangeStatus status;
 
     public void addTransaction(ExchangeTransaction transaction) {
         if(this.transactions == null)

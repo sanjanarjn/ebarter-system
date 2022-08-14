@@ -31,6 +31,8 @@ public class Item extends BaseEntity {
 
     private ItemAvailabilityStatus availabilityStatus;
 
+    private int points;
+
     @PrePersist
     public void modifyEntityBeforeCreation() {
         super.setCreatedTime();

@@ -7,4 +7,5 @@ public class ExceptionMessages {
 
     public static final String CATEGORY_WITH_SAME_NAME_EXISTS = "Item category with same name already exists";
     public static final String INCORRECT_USERNAME_OR_PASSWORD = "Incorrect username or password";
+    public static final String USER_NOT_VERIFIED = "Please verify your email address.";
 }

@@ -12,6 +12,6 @@ public class ItemDto {
     private ItemCategoryDto category;
     private String title;
     private long ownerId;
-
+    private int points;
     private JsonNode details;
 }

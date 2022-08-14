@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
     Page<Item> findByAvailabilityStatus(ItemAvailabilityStatus status, PageRequest pageRequest);
+
+    Page<Item> findByCategoryIdAndOwnerIdAndAvailabilityStatus(long categoryId, long ownerId, ItemAvailabilityStatus status, PageRequest pageRequest);
 }
