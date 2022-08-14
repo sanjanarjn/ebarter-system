@@ -59,6 +59,13 @@ alter table exchange
 add constraint initiated_user_id_foreign_key 
 foreign key(initiated_user_id) references user(id);
 
+alter table exchange add column fellow_user_id bigint not null;
+alter table exchange 
+add constraint fellow_user_id_foreign_key 
+foreign key(fellow_user_id) references user(id);
+
+alter table exchange add column status varchar(50);
+
 create table exchange_transaction (
 	id bigint not null primary key auto_increment,
     borrower bigint not null,
@@ -87,4 +94,23 @@ create table user_profile (
 
 alter table item add column points int default 1;
 use ebarter;
+
+create table user_rating (
+	id bigint not null primary key auto_increment,
+	entity_id bigint not null,
+    user_id bigint not null,
+    rating int not null,
+    created_time datetime not null,
+    modified_time datetime not null
+);
+
+create table item_rating (
+	id bigint not null primary key auto_increment,
+	entity_id bigint not null,
+    user_id bigint not null,
+    rating int not null,
+    created_time datetime not null,
+    modified_time datetime not null
+)
+
 
