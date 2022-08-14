@@ -111,6 +111,15 @@ create table item_rating (
     rating int not null,
     created_time datetime not null,
     modified_time datetime not null
-)
+);
 
+drop table follow_detail;
+create table follow_detail (
+	id bigint not null primary key auto_increment,
+	follower bigint not null, 
+    followee bigint not null,
+    created_time datetime not null,
+    modified_time datetime not null,
+    unique(follower, followee)
+);
 
