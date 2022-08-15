@@ -10,6 +10,8 @@ import com.ebarter.services.profile.UserProfileService;
 import com.ebarter.services.user.iam.AuthResponse;
 import com.ebarter.services.user.iam.JwtTokenService;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +49,8 @@ public class UserService {
     @Autowired
     private UserProfileRepository profileRepository;
 
+    private final static Logger logger = LoggerFactory.getLogger(UserService.class);
+
     @Transactional
     public boolean registerUser(UserDTO userDTO) throws ServiceException {
 
@@ -57,16 +61,18 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreatedTime(new Date());
         user.setModifiedTime(new Date());
+        user.setProfile(new UserProfile());
 
         if(user.getRole() == null)
             user.setRole(UserRole.REGULAR);
         user = userRepository.save(user);
 
-        UserProfile profile = new UserProfile();
-        profile.setId(user.getId());
-        profileRepository.save(profile);
+        logger.info("Saved user with id {} for email {}  : ", user.getId(), user.getEmail());
 
-        eventPublisher.publishEvent(new UserRegistrationSuccessEvent(user.getId(), user.getEmail()));
+        UserRegistrationSuccessEvent event = new UserRegistrationSuccessEvent(user.getId(), user.getEmail());
+        logger.info("Going to publish event - UserRegistrationSuccessEvent : ", event);
+        eventPublisher.publishEvent(event);
+
         return true;
     }
 
@@ -84,6 +90,8 @@ public class UserService {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
             User user = getUserByEmail(userDTO.getEmail());
             String token = tokenService.generateToken(user);
+            logger.info("Authenticated user with email - {} and generated token ", user.getEmail());
+
             return new AuthResponse(token);
         }
         catch(BadCredentialsException e) {

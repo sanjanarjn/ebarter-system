@@ -18,7 +18,7 @@ public class User extends BaseEntity {
     private UserRole role;
     private boolean verified;
 
-    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @PrimaryKeyJoinColumn
     private UserProfile profile;
 

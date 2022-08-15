@@ -8,6 +8,8 @@ import com.ebarter.services.item.ItemService;
 import com.ebarter.services.profile.UserProfileService;
 import com.ebarter.services.user.User;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -34,6 +36,8 @@ public class ExchangeService {
     @Autowired
     private ModelMapper modelMapper;
 
+    private final static Logger logger = LoggerFactory.getLogger(ExchangeService.class);
+
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public ExchangeDto initiateExchange(User user, BorrowalRequestDto borrowalRequestDto) {
 
@@ -46,6 +50,8 @@ public class ExchangeService {
         ExchangeTransaction transaction = createExchangeTransaction(user, borrowalRequestDto);
         transaction.setExchange(exchange);
 
+        logger.debug("Successfully created exchange - {}", exchange);
+        logger.info("Created exchange with id - {} between users {} and {}", exchange.getId(), exchange.getInitiatedUserId(), exchange.getFellowUserId());
         transactionService.saveTransaction(transaction);
         return modelMapper.map(exchange, ExchangeDto.class);
     }
@@ -89,6 +95,8 @@ public class ExchangeService {
             exchange.setStatus(ExchangeStatus.APPROVED);
             exchange = exchangeRepository.save(exchange);
             itemService.updateItemStatus(itemIds, ItemAvailabilityStatus.NOT_AVAILABLE);
+
+            logger.info("Exchange {} approved by {} and items {} marked unavailable", exchangeId, approverId, itemIds);
             return modelMapper.map(exchange, ExchangeDto.class);
         }
         else throw new ServiceException(MessageFormat.format(ExceptionMessages.ENTITY_ID_NOT_FOUND, exchangeId));
@@ -114,6 +122,7 @@ public class ExchangeService {
         }
         creditRewardPoints(initiatedUserId, fellowUserId, initiatedUserPoints, fellowUserPoints);
         itemService.updateItemStatus(itemIds, ItemAvailabilityStatus.AVAILABLE);
+        logger.debug("Items {} marked available", itemIds);
     }
 
     private void creditRewardPoints(long initiatedUserId, long fellowUserId, int initiatedUserPoints, int fellowUserPoints) {
@@ -129,6 +138,7 @@ public class ExchangeService {
             profileService.incrementUserRewardPoints(minUserId, minPoints - difference);
             profileService.incrementUserRewardPoints(maxUserId, minPoints + difference);
         }
+        logger.debug("Points {}, {} credited to users {}, {}", initiatedUserPoints, fellowUserPoints, initiatedUserId, fellowUserId);
     }
 
     public Exchange getExchange(long id) throws ServiceException {

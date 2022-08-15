@@ -3,13 +3,14 @@ package com.ebarter.services.exchange;
 import com.ebarter.services.exceptions.ExceptionMessages;
 import com.ebarter.services.exceptions.ServiceException;
 import com.ebarter.services.user.User;
+import com.ebarter.services.user.UserService;
 import com.ebarter.services.user.VerifiedAccess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,8 @@ public class ExchangeController {
     @Autowired
     private VerifiedAccess verifiedAccess;
 
+    private final static Logger logger = LoggerFactory.getLogger(ExchangeController.class);
+
 
     @GetMapping(path="/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getExchange(@AuthenticationPrincipal User user, @PathVariable("id") long id) throws ServiceException {
@@ -36,6 +39,7 @@ public class ExchangeController {
     public ResponseEntity<?> initiateExchange(@AuthenticationPrincipal User user, @RequestBody BorrowalRequestDto borrowalRequestDto) throws ServiceException {
         if(!user.isVerified())
             throw new ServiceException(ExceptionMessages.USER_NOT_VERIFIED);
+        logger.info("User - {} initiated exchange request - {}", user.getEmail(), borrowalRequestDto);
         return new ResponseEntity<>(exchangeService.initiateExchange(user, borrowalRequestDto), HttpStatus.CREATED);
     }
 
