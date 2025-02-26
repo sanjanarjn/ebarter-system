@@ -29,6 +29,9 @@ A backend service for a book exchange platform where users can list, exchange, a
 
 ## 🎨 Database Schema
 
+### 🗄️ Database Design
+![Database Design](DBDesign.png)
+
 ### 🔹 Tables
 
 - `user` - Stores user information.
@@ -56,8 +59,5 @@ A backend service for a book exchange platform where users can list, exchange, a
 - Java 11+
 - PostgreSQL
 
-## 🗄️ Database Design
-![Database Design](assets/DBDesign.png)
-
 ## 🏛️ High-Level Architecture
-![Architecture](assets/HLDesign.png)
+![Architecture](HLDesign.png)
