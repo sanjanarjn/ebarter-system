@@ -22,7 +22,7 @@ A backend service for a book exchange platform where users can list, exchange, a
 - **Spring Boot** - Backend framework
 - **Spring Security + JWT** - Authentication & Authorization
 - **Spring Data JPA** - ORM for database interaction
-- **PostgreSQL** - Relational database
+- **MySQL** - Relational database
 - **Lombok** - Reduces boilerplate code
 
 ---
