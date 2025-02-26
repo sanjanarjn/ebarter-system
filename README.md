@@ -53,5 +53,5 @@ A backend service for a book exchange platform where users can list, exchange, a
 ## 📥 Installation & Setup
 
 ### 📌 Prerequisites
-- Java 17+
+- Java 11+
 - PostgreSQL
