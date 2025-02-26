@@ -30,7 +30,7 @@ A backend service for a book exchange platform where users can list, exchange, a
 ## 🎨 Database Schema
 
 ### 🗄️ Database Design
-![Database Design](DBDesign.png)
+![Database Design](DatabaseDesign.png)
 
 ### 🔹 Tables
 
