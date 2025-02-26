@@ -55,3 +55,9 @@ A backend service for a book exchange platform where users can list, exchange, a
 ### 📌 Prerequisites
 - Java 11+
 - PostgreSQL
+
+## 🗄️ Database Design
+![Database Design](assets/DBDesign.png)
+
+## 🏛️ High-Level Architecture
+![Architecture](assets/HLDesign.png)
